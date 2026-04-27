@@ -12,11 +12,13 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
 
     private Rigidbody2D rb;
+    private Animator animator;
     private bool isGrounded;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -27,6 +29,19 @@ public class PlayerMovement : MonoBehaviour
         // Yatay hareket
         float moveInput = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+
+        // Animasyon
+        if (animator != null)
+        {
+            animator.SetFloat("Move", Mathf.Abs(moveInput));
+            animator.SetBool("IsJumping", !isGrounded);
+        }
+
+        // Yön kontrolü (saða/sola bakýþ)
+        if (moveInput > 0)
+            transform.localScale = new Vector3(1.5f, 2, 1);
+        else if (moveInput < 0)
+            transform.localScale = new Vector3(-1.5f, 2, 1);
 
         // Zýplama
         if (Input.GetButtonDown("Jump") && isGrounded)
