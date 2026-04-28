@@ -5,20 +5,23 @@ public class CharacterSwitcher : MonoBehaviour
     [Header("Karakterler")]
     public GameObject[] characters;
 
+    [Header("Kamera")]
+    public Camera mainCamera;
+
     private int activeIndex = 0;
 
     void Start()
     {
-        // Sadece ilk karakteri aktif et, diðerlerini kapat
         for (int i = 0; i < characters.Length; i++)
         {
             characters[i].SetActive(i == 0);
         }
+
+        UpdateCamera();
     }
 
     void Update()
     {
-        // Tab veya Shift ile geçiþ
         if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.LeftShift))
         {
             SwitchToNext();
@@ -27,13 +30,27 @@ public class CharacterSwitcher : MonoBehaviour
 
     void SwitchToNext()
     {
-        // Mevcut karakteri kapat
+        Vector3 currentPos = characters[activeIndex].transform.position;
+        Vector2 currentVelocity = characters[activeIndex].GetComponent<Rigidbody2D>().linearVelocity;
+
         characters[activeIndex].SetActive(false);
 
-        // Sýradaki karaktere geç (sona gelince baþa dön)
         activeIndex = (activeIndex + 1) % characters.Length;
 
-        // Yeni karakteri aç
+        // Yeni karakter ayný pozisyonda baþlasýn
+        characters[activeIndex].transform.position = currentPos;
+        characters[activeIndex].GetComponent<Rigidbody2D>().linearVelocity = currentVelocity;
         characters[activeIndex].SetActive(true);
+
+        UpdateCamera();
+    }
+
+    void UpdateCamera()
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        // Kamerayý aktif karaktere baðla
+        mainCamera.GetComponent<CameraFollow>()?.SetTarget(characters[activeIndex].transform);
     }
 }
